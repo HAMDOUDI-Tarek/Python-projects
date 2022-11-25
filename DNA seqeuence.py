@@ -1,3 +1,5 @@
+import random    #pour la fonction de Mutation
+
 def complement (ADN):       #fonction de complement d'ADN
     transcript = {"A":"T", "T":"A", "G":"C", "C":"G"}        #dictionnaire de complementarité
     return "".join([transcript[letter] for letter in ADN.upper()])
@@ -34,7 +36,59 @@ def traduction(ADN):
     
     return "".join([code_genetique[ADN[i:i+3]] for i in range(0, len(ADN), 3)])
     
+
+
+def Mutation(ADN):  #mutation (on ne l'utilise pas dans notre programme)
+    seq = ''
+    choix = random.randint(1,3)     #choisir une motation aléatoire
+    print("Choice: ", choix)
+    if choix == 1:
+        print('Substitution')       #le premier type de mutation est la substitution
+        
+        mutatedSeq = [c for c in ADN]       #un liste contenant les bases nucléotidiques
+        
+        position = random.randint(0,len(ADN)-1)     #choisir un posistion aléatoire
+        c = random.choice(["A", "T", "C", "G"])     #choisir une lettre aléatoire
+        while c == mutatedSeq[position]:
+            c = random.choice(["A", "T", "C", "G"])     #choisir un lettre differérente que celle existant dans la position précise
+        mutatedSeq[position] = c        #remplacer la position avec la nouvelle lettre
+        
+        for c in mutatedSeq:
+            seq += c
     
+    elif choix == 2:
+        print('Deletion')       #the 2ème type de mutation est la délétion
+        position = random.randint(1,len(ADN)-1)     #choisir un posistion aléatoire
+        mutatedSeq = []
+        i = 1
+        
+        for c in ADN:
+            if  i != position:
+                mutatedSeq.append(c)        #ajouter les lettre à la nouvelle liste jusqu'a ce qu'on atteigne la position désirée, on ne l'ajoute pas
+                i = i+1
+            else:
+                i = i+1
+        for c in mutatedSeq:
+            seq += c
+            
+    elif choix == 3:
+        print('Insertion')      #le 3ème type de mutation est l'insertion
+        position = random.randint(1,len(ADN)-1)     #choisir un posistion aléatoire
+        mutatedSeq = []
+        m = random.choice(["A", "T", "C", "G"])     #choisir une lettre aléatoire à inserer dans la séquence
+        i = 1
+        
+        for c in self.sequence:
+            if i == position:       #si on est à la position désirée
+                mutatedSeq.append(m)        #ajouter la lettre aléatoire
+                mutatedSeq.append(c)        #ajouter la lettre suivante de la séquence
+            else:
+                mutatedSeq.append(c)        #ajouter les lettre normalement
+            i = i+1
+            
+        for c in mutatedSeq:
+            seq += c
+    return seq          #la séquence resultante
 
 
 def LireSequenceFasta(chemain):     #parcourir le chemain donné
@@ -78,7 +132,7 @@ if __name__ == "__main__":
         file_name.write("\n" + transcription(line) + "\n")      #écrire la séquence ARN correspondante
         file_name.flush()
 
-        
+        file
         i+=1
 
         file_name.write(traduction(line))

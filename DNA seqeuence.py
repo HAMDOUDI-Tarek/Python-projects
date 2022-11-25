@@ -78,7 +78,7 @@ if __name__ == "__main__":
         file_name.write("\n" + transcription(line) + "\n")      #écrire la séquence ARN correspondante
         file_name.flush()
 
-        file
+        
         i+=1
 
         file_name.write(traduction(line))

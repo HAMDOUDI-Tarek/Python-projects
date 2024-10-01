@@ -1,146 +1,90 @@
-import random    #pour la fonction de Mutation
+import tkinter as tk
+from tkinter import filedialog, messagebox
 
-def complement (ADN):       #fonction de complement d'ADN
-    transcript = {"A":"T", "T":"A", "G":"C", "C":"G"}        #dictionnaire de complementarité
-    return "".join([transcript[letter] for letter in ADN.upper()])
+# Fonctions de complément, transcription et traduction d'ADN
+def complement(ADN):
+    transcript = {"A": "T", "T": "A", "G": "C", "C": "G"}
+    ADN = ADN.upper()
+    
+    # Vérifier que la séquence contient uniquement des bases ADN valides
+    for letter in ADN:
+        if letter not in transcript:
+            messagebox.showerror("Erreur", f"Base non valide trouvée : {letter}")
+            return ""
+    
+    return "".join([transcript[letter] for letter in ADN])
 
-
-def transcription(ADN):       #fonction de la traduction
+def transcription(ADN):
     return ADN.replace("T", "U")
 
 def traduction(ADN):
-    
     code_genetique = {
-                "UUU":"F","UUC":"F",
-                "CUU":"L","CUC":"L","CUA":"L","CUG":"L","UUA":"L","UUG":"L",
-                "AUU":"I","AUC":"I","AUA":"I",
-                "AUG":"M",
-                "GUU":"V","GUC":"V","GUA":"V","GUG":"V",
-                "UCU":"S","UCC":"S","UCA":"S","UCG":"S","AGU":"S","AGC":"S",
-                "CCU":"P","CCC":"P","CCA":"P","CCG":"P",
-                "ACU":"T","ACC":"T","ACA":"T","ACG":"T",
-                "GCU":"A","GCC":"A","GCA":"A","GCG":"A",
-                "UAA":"*","UAG":"*","UGA":"*",
-                "UAU":"Y","UAC":"Y",
-                "CAU":"H","CAC":"H",
-                "CAA":"Q","CAG":"Q",
-                "AAU":"N","AAC":"N",
-                "AAA":"K","AAG":"K",
-                "GAU":"D","GAC":"D",
-                "GAA":"E","GAG":"E",
-                "UGU":"C","UGC":"C",
-                "UGG":"W",
-                "CGU":"R","CGC":"R","CGA":"R","CGG":"R","AGA":"R","AGG":"R",
-                "GGU":"G","GGC":"G","GGA":"G","GGG":"G"
-                }
-    
+        "UUU":"F","UUC":"F","CUU":"L","CUC":"L","CUA":"L","CUG":"L","UUA":"L","UUG":"L",
+        "AUU":"I","AUC":"I","AUA":"I","AUG":"M","GUU":"V","GUC":"V","GUA":"V","GUG":"V",
+        "UCU":"S","UCC":"S","UCA":"S","UCG":"S","AGU":"S","AGC":"S","CCU":"P","CCC":"P","CCA":"P","CCG":"P",
+        "ACU":"T","ACC":"T","ACA":"T","ACG":"T","GCU":"A","GCC":"A","GCA":"A","GCG":"A",
+        "UAA":"*","UAG":"*","UGA":"*","UAU":"Y","UAC":"Y","CAU":"H","CAC":"H","CAA":"Q","CAG":"Q",
+        "AAU":"N","AAC":"N","AAA":"K","AAG":"K","GAU":"D","GAC":"D","GAA":"E","GAG":"E","UGU":"C","UGC":"C","UGG":"W",
+        "CGU":"R","CGC":"R","CGA":"R","CGG":"R","AGA":"R","AGG":"R","GGU":"G","GGC":"G","GGA":"G","GGG":"G"
+    }
     return "".join([code_genetique[ADN[i:i+3]] for i in range(0, len(ADN), 3)])
+
+# Interface Graphique
+def ouvrir_fichier():
+    filename = filedialog.askopenfilename(title="Choisir un fichier texte", filetypes=(("Fichiers texte", "*.txt"),))
+    with open(filename, 'r') as file:
+        seq_entry.delete(1.0, tk.END)
+        seq_entry.insert(tk.END, file.read())
+
+def enregistrer_fichier(seq):
+    filename = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=(("Fichiers texte", "*.txt"),))
+    if filename:
+        with open(filename, 'w') as file:
+            file.write(seq)
+
+def traiter_sequence():
+    ADN = seq_entry.get(1.0, tk.END).strip()  # Nettoyer les espaces et nouvelles lignes
+    print(f"Séquence entrée : {ADN}")  # Diagnostic
+    if not ADN:
+        messagebox.showerror("Erreur", "Veuillez entrer une séquence d'ADN.")
+        return
+
+    comp = complement(ADN)
+    if not comp:  # Si une erreur est survenue dans le complément, on arrête ici.
+        return
     
+    arn = transcription(ADN)
+    prot = traduction(arn)
 
+    result_text = f"Séquence complémentaire : {comp}\nSéquence ARN : {arn}\nChaîne protéique : {prot}"
+    result_label.config(text=result_text)
 
-def Mutation(ADN):  #mutation (on ne l'utilise pas dans notre programme)
-    seq = ''
-    choix = random.randint(1,3)     #choisir une motation aléatoire
-    print("Choice: ", choix)
-    if choix == 1:
-        print('Substitution')       #le premier type de mutation est la substitution
-        
-        mutatedSeq = [c for c in ADN]       #un liste contenant les bases nucléotidiques
-        
-        position = random.randint(0,len(ADN)-1)     #choisir un posistion aléatoire
-        c = random.choice(["A", "T", "C", "G"])     #choisir une lettre aléatoire
-        while c == mutatedSeq[position]:
-            c = random.choice(["A", "T", "C", "G"])     #choisir un lettre differérente que celle existant dans la position précise
-        mutatedSeq[position] = c        #remplacer la position avec la nouvelle lettre
-        
-        for c in mutatedSeq:
-            seq += c
-    
-    elif choix == 2:
-        print('Deletion')       #the 2ème type de mutation est la délétion
-        position = random.randint(1,len(ADN)-1)     #choisir un posistion aléatoire
-        mutatedSeq = []
-        i = 1
-        
-        for c in ADN:
-            if  i != position:
-                mutatedSeq.append(c)        #ajouter les lettre à la nouvelle liste jusqu'a ce qu'on atteigne la position désirée, on ne l'ajoute pas
-                i = i+1
-            else:
-                i = i+1
-        for c in mutatedSeq:
-            seq += c
-            
-    elif choix == 3:
-        print('Insertion')      #le 3ème type de mutation est l'insertion
-        position = random.randint(1,len(ADN)-1)     #choisir un posistion aléatoire
-        mutatedSeq = []
-        m = random.choice(["A", "T", "C", "G"])     #choisir une lettre aléatoire à inserer dans la séquence
-        i = 1
-        
-        for c in self.sequence:
-            if i == position:       #si on est à la position désirée
-                mutatedSeq.append(m)        #ajouter la lettre aléatoire
-                mutatedSeq.append(c)        #ajouter la lettre suivante de la séquence
-            else:
-                mutatedSeq.append(c)        #ajouter les lettre normalement
-            i = i+1
-            
-        for c in mutatedSeq:
-            seq += c
-    return seq          #la séquence resultante
+def sauvegarder_resultat():
+    result = result_label.cget("text")
+    enregistrer_fichier(result)
 
+# Configuration de l'interface
+root = tk.Tk()
+root.title("Analyse de séquences ADN")
 
-def LireSequenceFasta(chemain):     #parcourir le chemain donné
-    return SeqIO.read(chemain, 'fasta').seq         #retourner la séquence protéique trouvée
+# Création des composants
+seq_label = tk.Label(root, text="Entrer une séquence ADN :")
+seq_label.pack()
 
-def ScanSequence(seq):      #rechercher les motifs d'une séquence protéique
-    return [motif["signature_ac"] for motif in ScanProsite.read(ScanProsite.scan(seq))]         #retourner les motifs trouvés
-    
+seq_entry = tk.Text(root, height=4, width=50)
+seq_entry.pack()
 
-def aff(acc_numbers):       #afficher les information des motifs
-    inf = Prosite.read(ExPASy.get_prosite_raw(acc_numbers))         #créer un objet contenant les informations des motifs
-    for info in [inf.description, inf.accession, inf.nr_positive, inf.nr_false_pos, inf.nr_false_neg]:
-        print(info)     #afficher les motifs précisés
-    print("_"*10)       #séparer avec des traits
-    
-if __name__ == "__main__":
-    
-    fichier = open('séquences.txt', 'w')        #créer un fichier avec le nom "séquences" et l'ouvrir en mode écriture
+ouvrir_btn = tk.Button(root, text="Ouvrir un fichier", command=ouvrir_fichier)
+ouvrir_btn.pack()
 
-    for i in range(1,4):       #damander 10 fois à l'utilisateur d'entrer une séquence
-        seq=input("Entrez la séquence n°" + str(i) + ": ")       #écrire la séquence ADN
-        fichier.write(seq + '\n')       #ajouter la séquence au fichier .txt
-        fichier.flush()
+traiter_btn = tk.Button(root, text="Traiter la séquence", command=traiter_sequence)
+traiter_btn.pack()
 
-    fichier = open('séquences.txt')       #ouvrir le fichier en mode lecture
-    i=1         #indice utilisé pour distinguer entre les fichiers
+result_label = tk.Label(root, text="", wraplength=400)
+result_label.pack()
 
-    for line in fichier:        #accéder les séquence une par une dans le premier fichier
-        file_name = input("Fichier et numéro: ")       #pour ne pas utiliser le même nom d'ouverture, chaque fois l'utilisateur entre un nom different
-        file_name = open(str(i)+'ème sequence.txt', 'w')      #ouvrir un fichier different à chaque fois
-        file_name.write(line)       #écrire une séquence dans un fichier .txt séparé
+sauvegarder_btn = tk.Button(root, text="Sauvegarder les résultats", command=sauvegarder_resultat)
+sauvegarder_btn.pack()
 
-        for char in range(len(line)-1):
-            file_name.write("|")        #ajouter les batonnêts de correspondance
-            
-        file_name.write('\n' + complement(line) + '\n')          #écrir la séquence complémentaire en dessous
-
-        for char in range(len(line)-1):
-            file_name.write("|")
-
-        file_name.write("\n" + transcription(line) + "\n")      #écrire la séquence ARN correspondante
-        file_name.flush()
-
-        file
-        i+=1
-
-        file_name.write(traduction(line))
-        file_name = flush()
-        
-    file.close()
-    
-    for motif in ScanSequence(LireSequenceFasta(input("Entrer le chemain de vos motifs: ")):      #scanner les motifs existant dans le fichier donné
-        aff(motif)      #afficher les informations des motifs trouvés
-
-
+# Lancer l'application
+root.mainloop()
